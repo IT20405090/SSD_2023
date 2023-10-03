@@ -15,6 +15,26 @@ import grp from '../../img/fuel.jpg';
 
 function AddFuel() {
 
+
+  
+ // Define an asynchronous function to fetch the CSRF token
+ async function fetchCsrfToken() {
+  try {
+    // Send a GET request to the server to obtain the CSRF token
+    const response = await axios.get('http://localhost:5000/csrf-token');
+    
+    // Set the CSRF token in the component's state
+    setCsrfToken(response.data.csrfToken);
+  } catch (error) {
+    console.error('Error fetching CSRF token:', error);
+  }
+}
+
+// Call the fetchCsrfToken function when the component mounts (empty dependency array)
+useEffect(() => {
+  fetchCsrfToken();
+}, []);
+
     //to navigate to anohter page or the same page
     const navigate=useNavigate();
   
@@ -68,51 +88,46 @@ function AddFuel() {
         
       }; 
   
-      //handle the submit data
-      const handleSubmit = async (e)=>{
-          e.preventDefault();
-
-   
-    if(Date===''|| amount===''|| Fname===''||Ftype===''|| price===''){
-        alert("Fill All The Details!!")
-
-    }else {
-
-        let newData={
-            Date:Date,
-            amount:amount,
-            Fname:Fname,
-            Ftype:Ftype,
-            price:price
-          }
-
-      console.log("Sending Details...",newData);
-
-      let data= await axios.post('http://localhost:5000/Fuel/Save',{
-        Date:Date,
-            amount:amount,
-            Fname:Fname,
-            Ftype:Ftype,
-            price:price
-      });
-
+      const handleSubmit = async (e) => {
+        e.preventDefault();
       
-
-      console.log("Data saved: ",data);
-
-      if(data.status !==200){
-        alert("Data not added")
-      }
-      else{
-    
-        alert("Saving data............")
-        navigate('/ViewAllFuel')
-      }
-
-    }
-
-
-  }
+        if (Date === '' || amount === '' || Fname === '' || Ftype === '' || price === '') {
+          alert('Fill All The Details!!');
+        } else {
+          let newData = {
+            Date: Date,
+            amount: amount,
+            Fname: Fname,
+            Ftype: Ftype,
+            price: price,
+          };
+      
+          console.log('Sending Details...', newData);
+      
+          try {
+            // Send a POST request to the server to save data
+            const response = await axios.post('http://localhost:5000/Fuel/Save', newData, {
+              headers: {
+                'X-CSRF-Token': csrfToken, // Include the CSRF token in the request headers
+              },
+            });
+      
+            console.log('Data saved: ', response.data);
+      
+            if (response.status !== 200) {
+              alert('Data not added');
+            } else {
+              alert('Saving data............');
+              navigate('/ViewAllFuel'); // Redirect to the specified page after successful data save
+            }
+          } catch (error) {
+            console.error('Error saving data:', error);
+            alert('Error: Data not saved');
+          }
+        }
+      };
+      
+ 
 
 
 
@@ -140,6 +155,8 @@ function AddFuel() {
             
 
             <form onSubmit={(e) => handleSubmit(e)}>
+              {/* Comment explaining the hidden input field */}
+              <input type="hidden" name="csrfToken" value={csrfToken} />
                 
 
                   <table className='tableSalary' style={{width:"1000px", marginLeft:"0px", marginTop:'50px', background:"rgba(90,90,120,0.45)"}}  >
