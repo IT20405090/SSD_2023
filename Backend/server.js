@@ -1,5 +1,3 @@
-//Anodya 
-
 
 //import express to invoke with the app
 const express = require("express");
@@ -12,6 +10,11 @@ const bodyParser = require("body-parser");
 
 //import mongoose
 const mongoose = require("mongoose");
+
+// Import csurf
+const csrf = require("csurf"); 
+//import cookie - Parser
+const cookieParser = require('cookie-parser');
 
 //import Routes
 //ramona routes
@@ -93,6 +96,30 @@ app.use(
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Use cookie-parser middleware to handle cookies
+app.use(cookieParser());
+
+// Create a CSRF token middleware
+const csrfProtection = csrf({ cookie: true });
+
+// Add a middleware to set the CSRF token in a cookie
+
+app.use(csrfProtection)
+
+app.use((req, res, next) => {
+  res.cookie("XSRF-TOKEN", req.csrfToken()); // Set the CSRF token as a cookie
+  next();
+});
+
+// Endpoint to get the CSRF token
+app.get("/csrf-token", csrfProtection, (req, res) => {
+  // The CSRF token is available via req.csrfToken() due to csrfProtection middleware
+  const csrfToken = req.csrfToken();
+
+  // Send the CSRF token as a response
+  res.json({ csrfToken });
+});
 
 const dotenv = require("dotenv");
 dotenv.config();
