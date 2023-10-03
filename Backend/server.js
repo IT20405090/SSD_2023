@@ -10,6 +10,14 @@ const bodyParser = require("body-parser");
 //import mongoose
 const mongoose = require("mongoose");
 
+// Import helmet-csp - Disni (Vul-fix)
+const helmetCSP = require("helmet-csp"); 
+
+// Import the helmet package- Disni (Vul-fix)
+const helmet = require("helmet"); 
+
+
+
 //import Routes
 //ramona routes
 const user = require("./Routes/userRoutes");
@@ -31,18 +39,66 @@ const submittedAppointment = require("./Routes/sumbittedAppointments");
 //invoke app
 const app = express();
 
+// Disable the "X-Powered-By" header - Disni (Vul-fix)
+app.disable("x-powered-by");
+
+// Use the helmet middleware to set security headers, including X-Content-Type-Options - Disni (Vul-fix)
+app.use(helmet());
+
+
+// Add CSP middleware before defining routes - Disni (Vul-fix)
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "frame-ancestors 'self'; " +
+    "script-src 'self' https://cdnjs.cloudflare.com https://kit.fontawesome.com; " +
+    "style-src 'self' https://cdnjs.cloudflare.com;"
+  );
+  next();
+});
+
+// Add the X-Frame-Options middleware - Disni (Vul-fix)
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  next();
+});
+
+// Add Strict-Transport-Security middleware - Disni (Vul-fix)
+app.use((req, res, next) => {
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  next();
+});
+
+// Add X-Content-Type-Options middleware - Disni (Vul-fix)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
 //declare the port to run the backend
 const PORT = process.env.PORT || 5000;
 
 //middlewares
+// app.use(
+//   cors({
+//     origin: "*",
+//   })
+// );
+
+
 app.use(
   cors({
-    origin: "*",
+    origin:["http://localhost:1234", "http://localhost:5000"], // Allow requests from your development origins
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Define the allowed HTTP methods
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
-);
+)
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 
 const dotenv = require("dotenv");
 dotenv.config();
