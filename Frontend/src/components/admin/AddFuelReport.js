@@ -10,6 +10,24 @@ import backgroundImage from '../../img/addbackground.jpg';
 
 function AddFuelReport(){
 
+  // Define an asynchronous function to fetch the CSRF token
+ async function fetchCsrfToken() {
+  try {
+    // Send a GET request to the server to obtain the CSRF token
+    const response = await axios.get('http://localhost:5000/csrf-token');
+    
+    // Set the CSRF token in the component's state
+    setCsrfToken(response.data.csrfToken);
+  } catch (error) {
+    console.error('Error fetching CSRF token:', error);
+  }
+}
+
+// Call the fetchCsrfToken function when the component mounts (empty dependency array)
+useEffect(() => {
+  fetchCsrfToken();
+}, []);
+
       //to navigate to anohter page or the same page
   const navigate=useNavigate();
 
@@ -239,6 +257,7 @@ function AddFuelReport(){
           Remaintot:Remaintot
         });
 
+        
         console.log("Saved Data : ",data);
 
       if(data.status !==200){
@@ -280,7 +299,8 @@ function AddFuelReport(){
                   <th>
                     <br/><br/>
                     <form style={{marginLeft:'30px', marginRight:'200px', marginTop:'-40px'}}>
-             
+                      {/* Comment explaining the hidden input field */}
+                        <input type="hidden" name="csrfToken" value={csrfToken} />
                     <br/>
                       <table>
                         <thead>
