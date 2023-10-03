@@ -10,14 +10,6 @@ const bodyParser = require("body-parser");
 //import mongoose
 const mongoose = require("mongoose");
 
-// Import helmet-csp - Disni (Vul-fix)
-const helmetCSP = require("helmet-csp"); 
-
-// Import the helmet package- Disni (Vul-fix)
-const helmet = require("helmet"); 
-
-
-
 //import Routes
 //ramona routes
 const user = require("./Routes/userRoutes");
@@ -98,7 +90,6 @@ app.use(
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 
 const dotenv = require("dotenv");
 dotenv.config();
