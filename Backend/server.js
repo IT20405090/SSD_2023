@@ -117,7 +117,7 @@ app.get("/csrf-token", csrfProtection, (req, res) => {
   // The CSRF token is available via req.csrfToken() due to csrfProtection middleware
   const csrfToken = req.csrfToken();
 
-  // Send the CSRF token as a response
+  // Send the CSRF token as a response as json
   res.json({ csrfToken });
 });
 
